@@ -1,0 +1,23 @@
+monster_001.png
+size:364,364
+filter:Linear,Linear
+pma:true
+Layer 13
+bounds:215,181,105,179
+offsets:1,0,106,179
+Layer 14
+bounds:2,3,179,150
+offsets:4,0,183,150
+Layer 15
+bounds:263,7,172,82
+offsets:0,0,172,106
+rotate:90
+Layer 4
+bounds:2,155,211,205
+l_shoulder
+bounds:183,2,57,60
+offsets:1,4,58,64
+rotate:90
+r_shoulder
+bounds:183,61,78,92
+offsets:114,1,192,93

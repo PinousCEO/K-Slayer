@@ -1,0 +1,47 @@
+boss_001_for spine.png
+size:1464,1464
+filter:Linear,Linear
+pma:true
+FACE LINE
+bounds:510,777,641,682
+body line
+bounds:502,53,466,388
+l_arm
+bounds:510,443,332,607
+rotate:90
+l_leg_line
+bounds:1264,1179,195,280
+l_shoulder guard_line
+bounds:970,173,142,268
+l_thigh guard_line
+bounds:970,43,197,128
+l_thigh_line
+bounds:1119,426,226,207
+r_ shoulder
+bounds:2,133,498,436
+r_arm2
+bounds:2,571,506,888
+r_leg_line
+bounds:1264,873,165,304
+r_thigh guard_line
+bounds:1169,23,201,158
+offsets:0,0,201,160
+r_thigh_line
+bounds:1114,183,241,207
+offsets:1,0,242,207
+rotate:90
+shadow
+bounds:1153,635,824,109
+offsets:1,1,826,111
+rotate:90
+waist center belt
+bounds:1323,218,78,206
+waist left belt_line
+bounds:1347,448,103,211
+offsets:0,0,104,211
+waist right belt_line
+bounds:1264,661,150,210
+offsets:0,0,151,210
+waist_line
+bounds:2,39,302,92
+offsets:1,191,303,283

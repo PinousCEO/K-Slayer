@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 964236a0b17e36b4188086980522b6f4, type: 3}
+  m_Name: Skill01
+  m_EditorClassIdentifier: 
+  skillName: Buff
+  skillIcon: {fileID: 5186247734694461151, guid: 5b5bd786dc8b63846ae5ad7c277d82b9, type: 3}
+  cooldown: 15
+  description: 
+  effectPrefab: {fileID: 326222766123248905, guid: 51805523f21efa84b9f30f4876a08867, type: 3}
+  damagePercentage: 1
+  state: 2

@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 964236a0b17e36b4188086980522b6f4, type: 3}
+  m_Name: Skill07
+  m_EditorClassIdentifier: 
+  skillName: RangeAttack
+  skillIcon: {fileID: -8672068818272090037, guid: f8c66bc381af02b44be2bde4db8e0f5c, type: 3}
+  cooldown: 17
+  description: 
+  effectPrefab: {fileID: 4660892171296563446, guid: 7080980dca681514998597603a4f91f5, type: 3}
+  damagePercentage: 1
+  state: 2
