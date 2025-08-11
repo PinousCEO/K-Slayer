@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9c982656b26b5546a81f2aab17d0c4d, type: 3}
+  m_Name: Accessory_11
+  m_EditorClassIdentifier: 
+  itemName: Accessory_11
+  icon: {fileID: -4079746251587425179, guid: 29242b9c1bf3282488cd744467c7aaa1, type: 3}
+  category: 1
+  rarity: 2
