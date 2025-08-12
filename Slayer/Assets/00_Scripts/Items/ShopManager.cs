@@ -109,7 +109,6 @@ public class ShopManager : MonoBehaviour
 
         if (totalWeight <= 0f)
         {
-            // fallback to equal weights if misconfigured
             totalWeight = n;
             for (int i = 0; i < n; i++)
                 cumulative[i] = i + 1;

@@ -1,29 +1,40 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class InventoryUI : MonoBehaviour
 {
-    [SerializeField] private Transform weaponContent;
-    [SerializeField] private Transform accessoryContent;
-    [SerializeField] private Transform skillContent;
+    [SerializeField] private ScrollRect scrollRect;
+    [SerializeField] private RectTransform weaponGroup;
+    [SerializeField] private RectTransform accessoryGroup;
+    [SerializeField] private RectTransform skillGroup;
     [SerializeField] private GameObject inventorySlotPrefab;
+    [SerializeField] private Button bulkUpgradeButton;
 
     private readonly Dictionary<ShopItem_SObj, InventorySlot> slotMap = new();
     private ItemCategory currentCategory = ItemCategory.Weapon;
-    private Transform[] allContents;
-    private Transform activeParent;
+    private RectTransform[] allGroups;
+    private RectTransform activeGroup;
 
     private void Awake()
     {
-        var list = new List<Transform>(3);
-        if (weaponContent != null && !list.Contains(weaponContent)) list.Add(weaponContent);
-        if (accessoryContent != null && !list.Contains(accessoryContent)) list.Add(accessoryContent);
-        if (skillContent != null && !list.Contains(skillContent)) list.Add(skillContent);
-        allContents = list.ToArray();
+        if (scrollRect != null) scrollRect.movementType = ScrollRect.MovementType.Clamped;
 
-        activeParent = GetParentFor(currentCategory);
-        for (int i = 0; i < allContents.Length; i++)
-            allContents[i].gameObject.SetActive(allContents[i] == activeParent);
+        var list = new List<RectTransform>(3);
+        if (weaponGroup) list.Add(weaponGroup);
+        if (accessoryGroup) list.Add(accessoryGroup);
+        if (skillGroup) list.Add(skillGroup);
+        allGroups = list.ToArray();
+
+        activeGroup = GetGroupFor(currentCategory);
+        for (int i = 0; i < allGroups.Length; i++)
+            allGroups[i].gameObject.SetActive(allGroups[i] == activeGroup);
+
+        if (bulkUpgradeButton != null)
+        {
+            bulkUpgradeButton.onClick.RemoveAllListeners();
+            bulkUpgradeButton.onClick.AddListener(_BulkUpgrade);
+        }
     }
 
     private void Start()
@@ -36,17 +47,25 @@ public class InventoryUI : MonoBehaviour
     public void _ShowAccessoryTab() => ShowCategory(ItemCategory.Accessory);
     public void _ShowSkillTab() => ShowCategory(ItemCategory.Skill);
 
+    private void _BulkUpgrade()
+    {
+        var mgr = InventoryManager.Instance;
+        if (mgr == null) return;
+        mgr.LevelUpAllInCategory(currentCategory);
+    }
+
     private void ShowCategory(ItemCategory category)
     {
         currentCategory = category;
-        var target = GetParentFor(category);
-        if (target == null) return;
+        var target = GetGroupFor(category);
+        if (!target) return;
 
-        if (activeParent == target) return;
-
-        if (activeParent != null) activeParent.gameObject.SetActive(false);
-        activeParent = target;
-        activeParent.gameObject.SetActive(true);
+        if (activeGroup != target)
+        {
+            if (activeGroup) activeGroup.gameObject.SetActive(false);
+            activeGroup = target;
+            activeGroup.gameObject.SetActive(true);
+        }
     }
 
     public void RefreshUI()
@@ -82,13 +101,9 @@ public class InventoryUI : MonoBehaviour
         }
 
         for (int i = 0; i < desired.Count; i++)
-        {
-            var entry = desired[i];
-            EnsureSlot(entry);
-        }
+            EnsureSlot(desired[i]);
 
         ApplySortedOrder();
-        ShowCategory(currentCategory);
     }
 
     public void RefreshItem(ShopItem_SObj item)
@@ -104,11 +119,12 @@ public class InventoryUI : MonoBehaviour
             if (slotMap.TryGetValue(item, out var oldSlot) && oldSlot != null)
                 Destroy(oldSlot.gameObject);
             slotMap.Remove(item);
-            ApplySortedOrder();
-            return;
+        }
+        else
+        {
+            EnsureSlot(entry);
         }
 
-        EnsureSlot(entry);
         ApplySortedOrder();
     }
 
@@ -116,12 +132,12 @@ public class InventoryUI : MonoBehaviour
     {
         if (entry == null || entry.item == null || inventorySlotPrefab == null) return;
 
-        var parent = GetParentFor(entry.item.category);
-        if (parent == null) return;
+        var parent = GetGroupFor(entry.item.category);
+        if (!parent) return;
 
         if (!slotMap.TryGetValue(entry.item, out var slot) || slot == null)
         {
-            var go = Instantiate(inventorySlotPrefab, parent);
+            var go = Object.Instantiate(inventorySlotPrefab, parent);
             slot = go.GetComponent<InventorySlot>();
             slotMap[entry.item] = slot;
         }
@@ -134,19 +150,19 @@ public class InventoryUI : MonoBehaviour
 
     private void ApplySortedOrder()
     {
-        if (weaponContent != null) SortParent(weaponContent);
-        if (accessoryContent != null) SortParent(accessoryContent);
-        if (skillContent != null) SortParent(skillContent);
+        SortGroup(weaponGroup);
+        SortGroup(accessoryGroup);
+        SortGroup(skillGroup);
     }
 
-    private void SortParent(Transform parent)
+    private void SortGroup(Transform group)
     {
-        if (parent == null) return;
+        if (!group) return;
 
-        var temp = new List<InventorySlot>(parent.childCount);
-        for (int i = 0; i < parent.childCount; i++)
+        var temp = new List<InventorySlot>(group.childCount);
+        for (int i = 0; i < group.childCount; i++)
         {
-            var s = parent.GetChild(i).GetComponent<InventorySlot>();
+            var s = group.GetChild(i).GetComponent<InventorySlot>();
             if (s != null) temp.Add(s);
         }
 
@@ -158,7 +174,9 @@ public class InventoryUI : MonoBehaviour
             if (ea == null) return 1;
             if (eb == null) return -1;
 
-            int r = ((int)ea.item.rarity).CompareTo((int)eb.item.rarity);
+            int ta = InventoryManager.Instance.GetTier(ea);
+            int tb = InventoryManager.Instance.GetTier(eb);
+            int r = tb.CompareTo(ta);
             if (r != 0) return r;
             return string.Compare(ea.item.itemName, eb.item.itemName, System.StringComparison.Ordinal);
         });
@@ -174,14 +192,14 @@ public class InventoryUI : MonoBehaviour
         return null;
     }
 
-    private Transform GetParentFor(ItemCategory category)
+    private RectTransform GetGroupFor(ItemCategory category)
     {
-        switch (category)
+        return category switch
         {
-            case ItemCategory.Weapon: return weaponContent;
-            case ItemCategory.Accessory: return accessoryContent;
-            case ItemCategory.Skill: return skillContent;
-            default: return null;
-        }
+            ItemCategory.Weapon => weaponGroup,
+            ItemCategory.Accessory => accessoryGroup,
+            ItemCategory.Skill => skillGroup,
+            _ => null
+        };
     }
 }
