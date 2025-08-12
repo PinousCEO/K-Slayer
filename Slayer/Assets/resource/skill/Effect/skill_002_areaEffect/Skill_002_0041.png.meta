@@ -5,6 +5,12 @@ TextureImporter:
   - first:
       213: -943213383793843010
     second: Skill_002_0041_0
+  - first:
+      213: 670083215178516565
+    second: Skill_002_0041_1
+  - first:
+      213: 1891299516138223654
+    second: Skill_002_0041_2
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -110,6 +116,19 @@ TextureImporter:
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
     buildTarget: iOS
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -129,10 +148,10 @@ TextureImporter:
       name: Skill_002_0041_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 1936
-        height: 1080
+        x: 16
+        y: 108
+        width: 1776
+        height: 785
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -143,6 +162,50 @@ TextureImporter:
       bones: []
       spriteID: eb4e29fbc6809e2f0800000000000000
       internalID: -943213383793843010
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skill_002_0041_1
+      rect:
+        serializedVersion: 2
+        x: 16
+        y: 658
+        width: 9
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 558caaa422d9c4900800000000000000
+      internalID: 670083215178516565
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skill_002_0041_2
+      rect:
+        serializedVersion: 2
+        x: 16
+        y: 634
+        width: 9
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 628794fa3ee3f3a10800000000000000
+      internalID: 1891299516138223654
       vertices: []
       indices: 
       edges: []
@@ -162,6 +225,8 @@ TextureImporter:
       entries: []
     nameFileIdTable:
       Skill_002_0041_0: -943213383793843010
+      Skill_002_0041_1: 670083215178516565
+      Skill_002_0041_2: 1891299516138223654
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

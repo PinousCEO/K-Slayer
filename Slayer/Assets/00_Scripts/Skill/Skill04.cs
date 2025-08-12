@@ -24,6 +24,6 @@ public class Skill04 : SkillBase
         //    maxHp
         //);
 
-        DamageText.Create(player.transform.position, amount, Color.green);
+        DamageText.Create(player.transform.position, (int)amount, Color.green);
     }
 }

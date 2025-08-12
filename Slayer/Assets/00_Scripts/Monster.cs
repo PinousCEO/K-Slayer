@@ -13,6 +13,7 @@ public class Monster : MonoBehaviour
     [SerializeField] private Image delayedFill;
     [SerializeField] private float smoothSpeed = 2f;
     [SerializeField] private GameObject coinPrefab;
+    [SerializeField] private GameObject HitPrefab;
     SkeletonAnimation skeletonAnimation;
     private float targetFill = 1f;
     float speed;
@@ -24,7 +25,15 @@ public class Monster : MonoBehaviour
         hpUI.SetActive(false);
         speed = GameManager.Instance.speed;
     }
-
+    IEnumerator HardCoodCoroutine()
+    {
+        yield return new WaitForSeconds(5.0f);
+        skeletonAnimation.AnimationState.SetAnimation(0, "skill", false);
+        yield return new WaitForSeconds(2.0f);
+        FindFirstObjectByType<Player>().AnimationChange("DIE", false);
+        yield return new WaitForSeconds(2.0f);
+        GameManager.Instance.Game_StateChange(Game_State.GAMECLEAR);
+    }
     void Update()
     {
         if (hpUI.activeSelf)
@@ -41,14 +50,26 @@ public class Monster : MonoBehaviour
     {
         var hpBase = StatManager.GetMonsterHP(GameManager.Instance.CurrentRound.Stage, GameManager.Instance.CurrentRound.Wave);
         hp = isBoss ? hpBase * 10.0f : hpBase;
+
+        if (GameManager.Instance.isDungeon)
+        {
+            hp *= 10;
+            StartCoroutine(HardCoodCoroutine());
+        }
         maxHp = hp;
     }
     public void TakeDamage(double damage, ElementType element = ElementType.Normal)
     {
-        skeletonAnimation.AnimationState.SetAnimation(0, "hit", false);
+        if(GameManager.Instance.isDungeon && isBoss)
+        {
+            
+        }
+        else
+            skeletonAnimation.AnimationState.SetAnimation(0, "hit", false);
 
         hp -= damage;
         hp = Mathf.Clamp((float)hp, 0, (float)maxHp);
+        Instantiate(HitPrefab, transform.position + Random.insideUnitSphere * 0.5f, Quaternion.Euler(0, 0, Random.Range(-180, 180.0f)));
         if(isBoss)
         {
             CanvasScriptHolder.main.OnBossRoundFill(hp, maxHp);
@@ -88,7 +109,7 @@ public class Monster : MonoBehaviour
         GameManager.Instance.UnregisterMonster(this);
         if (GameManager.Instance.MonstersCount() == 0)
         {
-            if (GameManager.Instance.isBoss)
+            if (GameManager.Instance.isBoss || GameManager.Instance.isDungeon)
             {
                 GameManager.Instance.Game_StateChange(Game_State.GAMECLEAR);
             }
@@ -116,8 +137,8 @@ public class Monster : MonoBehaviour
         var skeleton = GetComponent<SkeletonAnimation>();
         if (skeleton != null)
         {
-            Color startColor = skeleton.skeleton.GetColor(); // 초기 색상
-            Color targetColor = new Color(0f, 0f, 0f, 0f);  // 붉은 검정 + 알파 0
+            Color startColor = skeleton.skeleton.GetColor(); 
+            Color targetColor = new Color(0f, 0f, 0f, 0f); 
 
             float t = 0f;
             float duration = 1.5f;

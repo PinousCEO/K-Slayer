@@ -20,7 +20,10 @@ public class CanvasScriptHolder : MonoBehaviour
     {
         GameManager.Instance.UnregisterStateAction(Game_State.BOSS, OnBoss);
     }
-
+    public void OnDungeonBoss()
+    {
+        GameManager.Instance.Game_StateChange(Game_State.DungeonBoss);
+    }
     private void OnBoss()
     {
         boss.Initialize();

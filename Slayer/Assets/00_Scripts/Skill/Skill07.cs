@@ -18,7 +18,7 @@ public class Skill07 : SkillBase
         buffCoroutine = StartCoroutine(ApplyBuff());
         cooldownTimer = skillData.cooldown;
 
-        PlayEffect(transform.position + Vector3.up * 1.5f);
+        PlayEffect(player.transform.position + new Vector3(0, 0.3f, 0), player.transform);
     }
 
     IEnumerator ApplyBuff()

@@ -283,7 +283,7 @@ Transform:
   m_GameObject: {fileID: 4182107744993685656}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.45, y: 0.8, z: 0}
+  m_LocalPosition: {x: 1.45, y: 0.2, z: 0}
   m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -406,6 +406,7 @@ MonoBehaviour:
   delayedFill: {fileID: 3459590718724980650}
   smoothSpeed: 2
   coinPrefab: {fileID: 2346603747384602069, guid: 2a333d3fd73e1084eb4cce6cf6c32955, type: 3}
+  HitPrefab: {fileID: 5239525959500363288, guid: b10366e6184988d44bc31532be23b09c, type: 3}
   isDead: 0
 --- !u!1 &8609445457481577707
 GameObject:

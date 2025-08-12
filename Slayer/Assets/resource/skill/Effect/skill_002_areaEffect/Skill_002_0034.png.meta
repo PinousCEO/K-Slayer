@@ -5,6 +5,21 @@ TextureImporter:
   - first:
       213: 372492236624058214
     second: Skill_002_0034_0
+  - first:
+      213: 5180121557896694931
+    second: Skill_002_0034_1
+  - first:
+      213: 3612592658661702527
+    second: Skill_002_0034_2
+  - first:
+      213: 2048894979832053834
+    second: Skill_002_0034_3
+  - first:
+      213: 5889626637066988844
+    second: Skill_002_0034_4
+  - first:
+      213: -7703151753627741557
+    second: Skill_002_0034_5
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -110,6 +125,19 @@ TextureImporter:
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
     buildTarget: iOS
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -129,10 +157,10 @@ TextureImporter:
       name: Skill_002_0034_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 1936
-        height: 1080
+        x: 10
+        y: 1016
+        width: 10
+        height: 31
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -143,6 +171,116 @@ TextureImporter:
       bones: []
       spriteID: 667519537bb5b2500800000000000000
       internalID: 372492236624058214
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skill_002_0034_1
+      rect:
+        serializedVersion: 2
+        x: 10
+        y: 108
+        width: 1800
+        height: 910
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 39c86c78c1d73e740800000000000000
+      internalID: 5180121557896694931
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skill_002_0034_2
+      rect:
+        serializedVersion: 2
+        x: 11
+        y: 946
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f7bf6b9f1e1822230800000000000000
+      internalID: 3612592658661702527
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skill_002_0034_3
+      rect:
+        serializedVersion: 2
+        x: 10
+        y: 919
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a4088fee0232f6c10800000000000000
+      internalID: 2048894979832053834
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skill_002_0034_4
+      rect:
+        serializedVersion: 2
+        x: 10
+        y: 714
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c2d6e0ac8382cb150800000000000000
+      internalID: 5889626637066988844
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skill_002_0034_5
+      rect:
+        serializedVersion: 2
+        x: 11
+        y: 634
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b82571a0b48e81590800000000000000
+      internalID: -7703151753627741557
       vertices: []
       indices: 
       edges: []
@@ -162,6 +300,11 @@ TextureImporter:
       entries: []
     nameFileIdTable:
       Skill_002_0034_0: 372492236624058214
+      Skill_002_0034_1: 5180121557896694931
+      Skill_002_0034_2: 3612592658661702527
+      Skill_002_0034_3: 2048894979832053834
+      Skill_002_0034_4: 5889626637066988844
+      Skill_002_0034_5: -7703151753627741557
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

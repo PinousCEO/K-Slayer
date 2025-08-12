@@ -18,8 +18,6 @@ public class InventoryUI : MonoBehaviour
 
     private void Awake()
     {
-        if (scrollRect != null) scrollRect.movementType = ScrollRect.MovementType.Clamped;
-
         var list = new List<RectTransform>(3);
         if (weaponGroup) list.Add(weaponGroup);
         if (accessoryGroup) list.Add(accessoryGroup);

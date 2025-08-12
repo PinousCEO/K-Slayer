@@ -32,29 +32,22 @@ public class Skill08 : SkillBase
             }
 
             var skeleton = player.GetComponent<Spine.Unity.SkeletonAnimation>();
-            skeleton.AnimationState.SetAnimation(0, "RUN", true);
             skeleton.timeScale = dashSpeed / 2f;
 
-            while (Vector2.Distance(player.transform.position, target.transform.position) > stopDistance)
+            if (target.isDead)
+                break;
+
+            else if (!target.isDead)
             {
-                Vector3 dir = (target.transform.position - player.transform.position).normalized;
-                player.transform.position += dir * dashSpeed * Time.deltaTime;
+                target.TakeDamage(GetFinalDamage());
 
-                if (target.isDead)
-                    break;
-                
-                else if (!target.isDead)
-                {
-                    target.TakeDamage(GetFinalDamage());
-                    
-                    if(!target.isDead)
-                        yield break;
-                    
-                    break;
-                }
+                if (!target.isDead)
+                    yield break;
 
-                yield return null;
+                break;
             }
+
+            yield return null;
         }
     }
 }

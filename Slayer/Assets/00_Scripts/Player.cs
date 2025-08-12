@@ -6,6 +6,9 @@ public class Player : MonoBehaviour
 {
     private SkeletonAnimation skeletonAnimation;
     [SerializeField] private float attackRange;
+    [SerializeField] private Animator attackAnimator;
+    bool isAttackHandle;
+    public bool isDie= false;
     private bool isAttacking = false;
     private void Start()
     {
@@ -32,8 +35,14 @@ public class Player : MonoBehaviour
         {
             CheckAttackRange();
         }
-    }
+        else if (GameManager.Instance.game_State == Game_State.DungeonStart)
+        {
+            var target = GameManager.Instance.TargetMonster;
+            if (target == null) return;
 
+            GameManager.Instance.Game_StateChange(Game_State.ATTACK);
+        }
+    }
     private void CheckAttackRange()
     {
         var target = GameManager.Instance.TargetMonster;
@@ -54,6 +63,7 @@ public class Player : MonoBehaviour
 
     private void OnMOVE()
     {
+        if (isDie == true) isDie = false;
         StopAllCoroutines();
         AnimationChange("RUN", true);
 
@@ -68,7 +78,11 @@ public class Player : MonoBehaviour
     {
         float attackSpeed = StatManager.m_PlayerStatData.attackSpeedMultiplier;
         skeletonAnimation.timeScale = attackSpeed;
+
         AnimationChange("ATTACK", false);
+
+        attackAnimator.Play("AT_" + (isAttackHandle ? "1" : "0"));
+        isAttackHandle = !isAttackHandle;
         StartCoroutine(AttackCoroutine());
     }
 
@@ -90,7 +104,7 @@ public class Player : MonoBehaviour
         {
             target.TakeDamage(StatManager.GetStatValue(StatType.ATK, StatManager.m_PlayerStatData.atkLevel));
         }
-
+        attackAnimator.gameObject.SetActive(false);
         yield return new WaitForSeconds(1.0f / attackSpeed);
 
         isAttacking = false;
@@ -99,11 +113,20 @@ public class Player : MonoBehaviour
 
     public void AnimationChange(string temp, bool loop)
     {
+        if (isDie) return;
+        if (temp == "DIE")
+        {
+            isDie = true;
+        }
         skeletonAnimation.AnimationState.SetAnimation(0, temp, loop);
         if(temp == "SKILL")
         {
             StartCoroutine(DelayAnimationCheck());
         }
+
+        if (temp == "ATTACK") attackAnimator.gameObject.SetActive(true);
+        else
+            attackAnimator.gameObject.SetActive(false);
     }
 
     IEnumerator DelayAnimationCheck()

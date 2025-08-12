@@ -11,6 +11,8 @@ public enum Game_State
     SKILL,
     BOSS,
     GAMECLEAR,
+    DungeonBoss,
+    DungeonStart,
     NEXT
 }
 [System.Serializable]
@@ -28,6 +30,7 @@ public class GameManager : Singleton<GameManager>
     public Monster TargetMonster => ActiveMonsters.Count > 0 ? ActiveMonsters[0] : null;
     public Action<int> RoundUpAction = null;
     public bool isBoss;
+    public bool isDungeon;
     private Dictionary<Game_State, Action> Game_stateActions;
     private List<Monster> ActiveMonsters { get; set; } = new List<Monster>();
     protected override void Awake()
@@ -41,8 +44,9 @@ public class GameManager : Singleton<GameManager>
             { Game_State.MOVE, OnMove },
             { Game_State.ATTACK, OnAttack },
             { Game_State.SKILL, OnSkill },
-            {Game_State.BOSS, OnBoss },
-            {Game_State.GAMECLEAR,  OnGameclear}
+            { Game_State.BOSS, OnBoss },
+            { Game_State.GAMECLEAR,  OnGameclear},
+            { Game_State.DungeonBoss, OnDungeon }
         };
     }
 
@@ -68,6 +72,14 @@ public class GameManager : Singleton<GameManager>
         {
             action?.Invoke();
         }
+    }
+    public void ClearAllMonsters()
+    {
+        for(int i = 0; i < ActiveMonsters.Count; i++)
+        {
+            Destroy(ActiveMonsters[i].gameObject);
+        }
+        ActiveMonsters.Clear();
     }
     public int MonstersCount()
     {
@@ -130,10 +142,18 @@ public class GameManager : Singleton<GameManager>
         isBoss = true;
     }
 
+    private void OnDungeon()
+    {
+        isDungeon = true;
+    }
+
     private void OnGameclear()
     {
+        ClearAllMonsters();
+
         CurrentRound.Stage++;
         CurrentRound.Wave = 0;
+        isDungeon = false;
         isBoss = false;
     }
 }
