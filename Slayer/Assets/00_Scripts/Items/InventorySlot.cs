@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+[DisallowMultipleComponent]
 public class InventorySlot : MonoBehaviour
 {
     [SerializeField] private Image icon;
@@ -15,45 +16,58 @@ public class InventorySlot : MonoBehaviour
     public void Setup(InventoryManager.InventoryEntry data)
     {
         entry = data;
+        if (entry == null) return;
 
-        if (icon == null)
+        if (icon == null) icon = GetComponentInChildren<Image>(true);
+
+        if (icon != null)
         {
-            var tr = transform;
-            if (tr.childCount > 0) icon = tr.GetChild(0).GetComponent<Image>();
+            if (entry.item != null && entry.item.icon != null)
+            {
+                icon.sprite = entry.item.icon;
+                icon.preserveAspect = true;
+                icon.enabled = true;
+            }
+            else
+            {
+                icon.enabled = false;
+            }
         }
-
-        if (icon != null && entry.item != null && entry.item.icon != null)
-        {
-            icon.sprite = entry.item.icon;
-            icon.preserveAspect = true;
-            icon.enabled = true;
-        }
-
-        UpdateUI();
 
         if (detailBtn != null)
         {
             detailBtn.onClick.RemoveAllListeners();
             detailBtn.onClick.AddListener(OpenPopup);
         }
+
+        UpdateUI();
     }
 
     public void UpdateUI()
     {
         if (entry == null) return;
 
-        if (countText != null) countText.text = $"{entry.count}";
-        if (levelText != null) levelText.text = $"{entry.level}";
+        if (countText != null) countText.text = entry.count.ToString();
+        if (levelText != null) levelText.text = entry.level.ToString();
 
-        int nextLevel = entry.level + 1;
-        int required = nextLevel * 2;
+        var inv = InventoryManager.Instance;
+        if (inv == null) return;
+
+        int maxLv = inv.GetMaxLevel(entry);
+        int required = inv.GetNextLevelCost(entry);
+
         if (fillBar != null)
-            fillBar.fillAmount = Mathf.Clamp01(required > 0 ? (float)entry.count / required : 0f);
+        {
+            if (required > 0 && entry.level < maxLv)
+                fillBar.fillAmount = Mathf.Clamp01((float)entry.count / required);
+            else
+                fillBar.fillAmount = 1f;
+        }
     }
 
-    void OpenPopup()
+    private void OpenPopup()
     {
-        if (InventoryPopup.Instance != null)
-            InventoryPopup.Instance.Open(entry);
+        if (entry == null) return;
+        InventoryManager.Instance.inventoryPopup.OpenUI(entry);
     }
 }

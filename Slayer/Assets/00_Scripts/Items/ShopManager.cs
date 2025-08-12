@@ -1,18 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
+[DisallowMultipleComponent]
 public class ShopManager : MonoBehaviour
 {
     [Header("DB / UI 참조")]
-    [SerializeField] private List<ShopItem_SObj> allItems;   // all item list
-    [SerializeField] private ShopResultUI resultUI;           // result ui
-    [SerializeField] private Button confirmButton;            // confirm
-    [SerializeField] private Button pull1Button;              // 1 btn
-    [SerializeField] private Button pull11Button;             // 11 btn (스킬)
-    [SerializeField] private Button pull35Button;             // 35 btn (무기/악세)
+    [SerializeField] private List<ShopItem_SObj> allItems;
+    [SerializeField] private ShopResultUI resultUI;
+    [SerializeField] private Button confirmButton;
+    [SerializeField] private Button pull1Button;
+    [SerializeField] private Button pull11Button;
+    [SerializeField] private Button pull35Button;
 
     private (Rarity rarity, float weight)[] rarityWeights =
     {
@@ -24,12 +24,17 @@ public class ShopManager : MonoBehaviour
         (Rarity.Legendary,  4f),
     };
 
+    private float totalWeight;
+    private float[] cumulative;
+    private Rarity[] rarityOrder;
+
     private Dictionary<ItemCategory, Dictionary<Rarity, List<ShopItem_SObj>>> itemMap;
     private ItemCategory activeCategory = ItemCategory.Weapon;
 
     private void Awake()
     {
         BuildItemMap();
+        BuildRarityPicker();
 
         if (resultUI != null)
         {
@@ -65,31 +70,70 @@ public class ShopManager : MonoBehaviour
 
     private void BuildItemMap()
     {
-        itemMap = new();
-        foreach (ItemCategory cat in System.Enum.GetValues(typeof(ItemCategory)))
-            itemMap[cat] = new Dictionary<Rarity, List<ShopItem_SObj>>();
+        itemMap = new Dictionary<ItemCategory, Dictionary<Rarity, List<ShopItem_SObj>>>(3);
+        var cats = (ItemCategory[])System.Enum.GetValues(typeof(ItemCategory));
+        var rars = (Rarity[])System.Enum.GetValues(typeof(Rarity));
 
-        foreach (var it in allItems.Where(i => i != null))
+        for (int ci = 0; ci < cats.Length; ci++)
         {
-            if (!itemMap[it.category].TryGetValue(it.rarity, out var list))
-            {
-                list = new List<ShopItem_SObj>();
-                itemMap[it.category][it.rarity] = list;
-            }
-            list.Add(it);
+            var cat = cats[ci];
+            var inner = new Dictionary<Rarity, List<ShopItem_SObj>>(rars.Length);
+            for (int ri = 0; ri < rars.Length; ri++)
+                inner[rars[ri]] = new List<ShopItem_SObj>(8);
+            itemMap[cat] = inner;
+        }
+
+        if (allItems == null) return;
+
+        for (int i = 0; i < allItems.Count; i++)
+        {
+            var it = allItems[i];
+            if (it == null) continue;
+            itemMap[it.category][it.rarity].Add(it);
         }
     }
 
-    public void SelectWeapon() => activeCategory = ItemCategory.Weapon;
-    public void SelectAccessory() => activeCategory = ItemCategory.Accessory;
-    public void SelectSkill() => activeCategory = ItemCategory.Skill;
+    private void BuildRarityPicker()
+    {
+        int n = rarityWeights.Length;
+        cumulative = new float[n];
+        rarityOrder = new Rarity[n];
+
+        totalWeight = 0f;
+        for (int i = 0; i < n; i++)
+        {
+            totalWeight += Mathf.Max(0f, rarityWeights[i].weight);
+            cumulative[i] = totalWeight;
+            rarityOrder[i] = rarityWeights[i].rarity;
+        }
+
+        if (totalWeight <= 0f)
+        {
+            // fallback to equal weights if misconfigured
+            totalWeight = n;
+            for (int i = 0; i < n; i++)
+                cumulative[i] = i + 1;
+        }
+    }
+
+    public void SelectWeapon() { activeCategory = ItemCategory.Weapon; ToggleResultButtons(resultUI != null && resultUI.IsShowingResult()); }
+    public void SelectAccessory() { activeCategory = ItemCategory.Accessory; ToggleResultButtons(resultUI != null && resultUI.IsShowingResult()); }
+    public void SelectSkill() { activeCategory = ItemCategory.Skill; ToggleResultButtons(resultUI != null && resultUI.IsShowingResult()); }
 
     public void _SpawnWeapon(int count = 1) { activeCategory = ItemCategory.Weapon; Pull(activeCategory, count); }
     public void _SpawnAccessory(int count = 1) { activeCategory = ItemCategory.Accessory; Pull(activeCategory, count); }
     public void _SpawnSkills(int count = 1) { activeCategory = ItemCategory.Skill; Pull(activeCategory, count); }
 
-    private void OnClickConfirm() { if (resultUI != null && resultUI.IsShowingResult()) resultUI.ConfirmClose(); }
-    private void OnClickPull(int count) { StartCoroutine(Co_RePullAfterClose(activeCategory, count)); }
+    private void OnClickConfirm()
+    {
+        if (resultUI != null && resultUI.IsShowingResult())
+            resultUI.ConfirmClose();
+    }
+
+    private void OnClickPull(int count)
+    {
+        StartCoroutine(Co_RePullAfterClose(activeCategory, count));
+    }
 
     private IEnumerator Co_RePullAfterClose(ItemCategory category, int count)
     {
@@ -101,7 +145,6 @@ public class ShopManager : MonoBehaviour
             Pull(category, count);
             yield break;
         }
-
         Pull(category, count);
     }
 
@@ -123,16 +166,21 @@ public class ShopManager : MonoBehaviour
 
         ToggleResultButtons(false);
 
-        var pulled = new List<ShopItem_SObj>();
+        var pulled = new List<ShopItem_SObj>(count);
         for (int i = 0; i < count; i++)
         {
             var targetRarity = GetRandomRarityWeighted();
-            var pick = GetRandomItemFrom(category, targetRarity) ?? FallbackPick(category, targetRarity);
+            var pick = GetRandomItemFrom(category, targetRarity);
+            if (pick == null) pick = FallbackPick(category, targetRarity);
             if (pick != null) pulled.Add(pick);
         }
 
-        for (int i = 0; i < pulled.Count; i++)
-            InventoryManager.Instance.AddItem(pulled[i]);
+        var inv = InventoryManager.Instance;
+        if (inv != null)
+        {
+            for (int i = 0; i < pulled.Count; i++)
+                inv.AddItem(pulled[i]);
+        }
 
         if (resultUI != null)
         {
@@ -143,41 +191,38 @@ public class ShopManager : MonoBehaviour
 
     private Rarity GetRandomRarityWeighted()
     {
-        float total = 0f;
-        for (int i = 0; i < rarityWeights.Length; i++) total += rarityWeights[i].weight;
-        if (total <= 0f) return Rarity.Common;
-
-        float roll = Random.Range(0f, total);
-        float acc = 0f;
-        for (int i = 0; i < rarityWeights.Length; i++)
+        float r = Random.value * totalWeight;
+        for (int i = 0; i < cumulative.Length; i++)
         {
-            acc += rarityWeights[i].weight;
-            if (roll <= acc) return rarityWeights[i].rarity;
+            if (r <= cumulative[i]) return rarityOrder[i];
         }
-        return rarityWeights[0].rarity;
+        return rarityOrder[0];
     }
 
     private ShopItem_SObj GetRandomItemFrom(ItemCategory cat, Rarity rarity)
     {
         if (!itemMap.TryGetValue(cat, out var byRarity)) return null;
         if (!byRarity.TryGetValue(rarity, out var list) || list == null || list.Count == 0) return null;
-        return list[Random.Range(0, list.Count)];
+        int idx = Random.Range(0, list.Count);
+        return list[idx];
     }
 
     private ShopItem_SObj FallbackPick(ItemCategory cat, Rarity prefer)
     {
-        int idx = System.Array.FindIndex(rarityWeights, x => x.rarity == prefer);
+        int idx = -1;
+        for (int i = 0; i < rarityOrder.Length; i++)
+            if (rarityOrder[i] == prefer) { idx = i; break; }
         if (idx < 0) idx = 0;
 
         for (int i = idx; i >= 0; i--)
         {
-            var p = GetRandomItemFrom(cat, rarityWeights[i].rarity);
+            var p = GetRandomItemFrom(cat, rarityOrder[i]);
             if (p != null) return p;
         }
 
-        for (int i = idx + 1; i < rarityWeights.Length; i++)
+        for (int i = idx + 1; i < rarityOrder.Length; i++)
         {
-            var p = GetRandomItemFrom(cat, rarityWeights[i].rarity);
+            var p = GetRandomItemFrom(cat, rarityOrder[i]);
             if (p != null) return p;
         }
         return null;

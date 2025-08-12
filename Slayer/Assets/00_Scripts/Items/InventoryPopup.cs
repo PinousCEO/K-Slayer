@@ -1,13 +1,11 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+[DisallowMultipleComponent]
 public class InventoryPopup : MonoBehaviour
 {
-    public static InventoryPopup Instance;
-
     [Header("Refs")]
     [SerializeField] private GameObject root;
     [SerializeField] private Image icon;
@@ -31,24 +29,32 @@ public class InventoryPopup : MonoBehaviour
     private int index;
     private const int selectedSteps = 1;
 
-    void Awake()
+    private void Awake()
     {
-        if (Instance == null) Instance = this;
-        else { Destroy(gameObject); return; }
+        if (root != null) root.SetActive(false);
+        SetUpButton();
+    }
 
-        root.SetActive(false);
+    public void SetUpButton()
+    {
+        if (levelUpButton != null)
+        {
+            levelUpButton.onClick.RemoveAllListeners();
+            levelUpButton.onClick.AddListener(OnClickLevelUp);
+        }
 
-        levelUpButton.onClick.RemoveAllListeners();
-        levelUpButton.onClick.AddListener(OnClickLevelUp);
-
-        closeBtn.onClick.RemoveAllListeners();
-        closeBtn.onClick.AddListener(Close);
+        if (closeBtn != null)
+        {
+            closeBtn.onClick.RemoveAllListeners();
+            closeBtn.onClick.AddListener(CloseUI);
+        }
 
         if (prevButton != null)
         {
             prevButton.onClick.RemoveAllListeners();
             prevButton.onClick.AddListener(Prev);
         }
+
         if (nextButton != null)
         {
             nextButton.onClick.RemoveAllListeners();
@@ -56,42 +62,63 @@ public class InventoryPopup : MonoBehaviour
         }
     }
 
-    public void Open(InventoryManager.InventoryEntry entry)
+    public void OpenUI(InventoryManager.InventoryEntry entry)
     {
+        if (entry == null || entry.item == null || root == null) return;
+
         BuildCarousel(entry);
-        root.SetActive(true);
+
+        if (!root.activeSelf) root.SetActive(true);
         Show(index);
     }
 
     public void RefreshCurrent()
     {
-        if (!root.activeSelf || currentEntry == null) return;
+        if (root == null || !root.activeSelf || currentEntry == null) return;
         Show(index);
     }
 
-    public void Close()
+    public void CloseUI()
     {
-        root.SetActive(false);
+        if (root == null) return;
+        if (root.activeSelf) root.SetActive(false);
     }
 
     private void BuildCarousel(InventoryManager.InventoryEntry focus)
     {
         carousel.Clear();
-        var inv = InventoryManager.Instance != null ? InventoryManager.Instance.GetInventory() : null;
-        if (inv != null)
+
+        var invMgr = InventoryManager.Instance;
+        if (invMgr != null)
         {
-            var list = inv.Values
-                .Where(e => e != null && e.item != null &&
-                            e.item.category == focus.item.category &&
-                            (e.count > 0 || e.level > 1))
-                .OrderBy(e => (int)e.item.rarity)
-                .ThenBy(e => e.item.itemName)
-                .ToList();
-            carousel.AddRange(list);
+            var inv = invMgr.GetInventory();
+            if (inv != null && inv.Count > 0)
+            {
+                foreach (var e in inv.Values)
+                {
+                    if (e == null || e.item == null) continue;
+                    if (e.item.category != focus.item.category) continue;
+                    if (e.count <= 0 && e.level <= 1) continue;
+                    carousel.Add(e);
+                }
+
+                carousel.Sort((a, b) =>
+                {
+                    int r = ((int)a.item.rarity).CompareTo((int)b.item.rarity);
+                    if (r != 0) return r;
+                    return string.Compare(a.item.itemName, b.item.itemName, System.StringComparison.Ordinal);
+                });
+            }
         }
 
-        index = Mathf.Max(0, carousel.FindIndex(e => e.item == focus.item));
-        if (index < 0)
+        int found = -1;
+        for (int i = 0; i < carousel.Count; i++)
+        {
+            if (carousel[i].item == focus.item) { found = i; break; }
+        }
+
+        if (found >= 0) index = found;
+        else
         {
             carousel.Add(focus);
             index = carousel.Count - 1;
@@ -100,72 +127,85 @@ public class InventoryPopup : MonoBehaviour
 
     private void Prev()
     {
-        if (carousel.Count == 0) return;
-        index = (index - 1 + carousel.Count) % carousel.Count;
+        int count = carousel.Count;
+        if (count == 0) return;
+        index = (index - 1 + count) % count;
         Show(index);
     }
 
     private void Next()
     {
-        if (carousel.Count == 0) return;
-        index = (index + 1) % carousel.Count;
+        int count = carousel.Count;
+        if (count == 0) return;
+        index = (index + 1) % count;
         Show(index);
     }
 
     private void Show(int idx)
     {
-        if (carousel.Count == 0) return;
-        index = Mathf.Clamp(idx, 0, carousel.Count - 1);
+        int count = carousel.Count;
+        if (count == 0) return;
+
+        if (idx < 0) idx = 0;
+        else if (idx >= count) idx = count - 1;
+
+        index = idx;
         currentEntry = carousel[index];
+        var entry = currentEntry;
+        var item = entry.item;
 
-        if (icon != null) icon.sprite = currentEntry.item.icon;
-        if (levelText != null) levelText.text = $"LV : {currentEntry.level}";
-        if (countText != null) countText.text = $"{currentEntry.count}";
+        if (icon != null) icon.sprite = item != null ? item.icon : null;
+        if (levelText != null) levelText.text = $"LV : {entry.level}";
+        if (countText != null) countText.text = entry.count.ToString();
 
-        float curAtk = InventoryManager.Instance.GetAttack(currentEntry);
+        var invMgr = InventoryManager.Instance;
+        float curAtk = invMgr != null ? invMgr.GetAttack(entry) : 0f;
         float nextAtk = curAtk;
         int required = 0;
 
-        var levels = currentEntry.item.upgradeLevels;
-        int maxLv = InventoryManager.Instance.GetMaxLevel(currentEntry);
-        int curLv = currentEntry.level;
+        int curLv = entry.level;
+        int maxLv = invMgr != null ? invMgr.GetMaxLevel(entry) : 1;
 
-        if (curLv < maxLv)
+        if (item != null && item.upgradeLevels != null && curLv < maxLv)
         {
             int idxCost = curLv - 1;
-            if (levels != null && idxCost >= 0 && idxCost < levels.Count)
+            if (idxCost >= 0 && idxCost < item.upgradeLevels.Count)
             {
-                required = Mathf.Max(0, levels[idxCost].cost);
-                nextAtk += levels[idxCost].attackAdd;
+                var u = item.upgradeLevels[idxCost];
+                required = u.cost > 0 ? u.cost : 0;
+                nextAtk += u.attackAdd;
             }
         }
 
         if (atkText != null) atkText.text = $"ATK  {curAtk:0.##}  →  {nextAtk:0.##}";
+
         if (requirementText != null)
-        {
-            if (required > 0 && curLv < maxLv) requirementText.text = $"Need: {required}";
-            else requirementText.text = "MAX";
-        }
+            requirementText.text = (required > 0 && curLv < maxLv) ? $"Need: {required}" : "MAX";
 
         if (quantityFill != null)
         {
             if (required > 0 && curLv < maxLv)
-                quantityFill.fillAmount = Mathf.Clamp01((float)currentEntry.count / required);
+                quantityFill.fillAmount = Mathf.Clamp01(required > 0 ? (float)entry.count / required : 1f);
             else
                 quantityFill.fillAmount = 1f;
         }
 
-        bool can = (required > 0) && (currentEntry.count >= required) && (currentEntry.level < maxLv);
-        levelUpButton.interactable = can;
+        bool can = (required > 0) && (entry.count >= required) && (curLv < maxLv);
+        if (levelUpButton != null) levelUpButton.interactable = can;
 
-        if (prevButton != null) prevButton.gameObject.SetActive(carousel.Count > 1);
-        if (nextButton != null) nextButton.gameObject.SetActive(carousel.Count > 1);
+        bool showNav = count > 1;
+        if (prevButton != null) prevButton.gameObject.SetActive(showNav);
+        if (nextButton != null) nextButton.gameObject.SetActive(showNav);
     }
 
     private void OnClickLevelUp()
     {
         if (currentEntry == null) return;
-        InventoryManager.Instance.LevelUpMultiple(currentEntry, selectedSteps);
+
+        var invMgr = InventoryManager.Instance;
+        if (invMgr == null) return;
+
+        invMgr.LevelUpMultiple(currentEntry, selectedSteps);
         Show(index);
     }
 }

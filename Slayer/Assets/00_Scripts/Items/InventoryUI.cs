@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class InventoryUI : MonoBehaviour
@@ -12,13 +11,19 @@ public class InventoryUI : MonoBehaviour
     private readonly Dictionary<ShopItem_SObj, InventorySlot> slotMap = new();
     private ItemCategory currentCategory = ItemCategory.Weapon;
     private Transform[] allContents;
+    private Transform activeParent;
 
     private void Awake()
     {
-        allContents = new[] { weaponContent, accessoryContent, skillContent }
-            .Where(t => t != null)
-            .Distinct()
-            .ToArray();
+        var list = new List<Transform>(3);
+        if (weaponContent != null && !list.Contains(weaponContent)) list.Add(weaponContent);
+        if (accessoryContent != null && !list.Contains(accessoryContent)) list.Add(accessoryContent);
+        if (skillContent != null && !list.Contains(skillContent)) list.Add(skillContent);
+        allContents = list.ToArray();
+
+        activeParent = GetParentFor(currentCategory);
+        for (int i = 0; i < allContents.Length; i++)
+            allContents[i].gameObject.SetActive(allContents[i] == activeParent);
     }
 
     private void Start()
@@ -34,52 +39,139 @@ public class InventoryUI : MonoBehaviour
     private void ShowCategory(ItemCategory category)
     {
         currentCategory = category;
-        for (int i = 0; i < allContents.Length; i++)
-            allContents[i].gameObject.SetActive(false);
-
         var target = GetParentFor(category);
-        if (target != null) target.gameObject.SetActive(true);
+        if (target == null) return;
+
+        if (activeParent == target) return;
+
+        if (activeParent != null) activeParent.gameObject.SetActive(false);
+        activeParent = target;
+        activeParent.gameObject.SetActive(true);
     }
 
     public void RefreshUI()
     {
-        ClearChildren(weaponContent);
-        ClearChildren(accessoryContent);
-        ClearChildren(skillContent);
-        slotMap.Clear();
+        var invMgr = InventoryManager.Instance;
+        if (invMgr == null) return;
 
-        var inv = InventoryManager.Instance != null ? InventoryManager.Instance.GetInventory() : null;
+        var inv = invMgr.GetInventory();
         if (inv == null) return;
 
-        var sortedList = inv.Values
-            .Where(entry => entry != null && (entry.count > 0 || entry.level > 1))
-            .OrderBy(entry => (int)entry.item.rarity)
-            .ThenBy(entry => entry.item.name)
-            .ToList();
-
-        foreach (var entry in sortedList)
+        var desired = new List<InventoryManager.InventoryEntry>(inv.Count);
+        foreach (var e in inv.Values)
         {
-            var parent = GetParentFor(entry.item.category);
-            if (parent == null || inventorySlotPrefab == null) continue;
-
-            var slotObj = Instantiate(inventorySlotPrefab, parent);
-            var slot = slotObj.GetComponent<InventorySlot>();
-            if (slot == null) continue;
-
-            slot.Setup(entry);
-            slotMap[entry.item] = slot;
+            if (e == null || e.item == null) continue;
+            if (e.count <= 0 && e.level <= 1) continue;
+            desired.Add(e);
         }
 
+        var desiredSet = new HashSet<ShopItem_SObj>();
+        for (int i = 0; i < desired.Count; i++)
+            desiredSet.Add(desired[i].item);
+
+        var toRemove = new List<ShopItem_SObj>();
+        foreach (var kv in slotMap)
+            if (!desiredSet.Contains(kv.Key)) toRemove.Add(kv.Key);
+
+        for (int i = 0; i < toRemove.Count; i++)
+        {
+            var key = toRemove[i];
+            if (slotMap.TryGetValue(key, out var slot) && slot != null)
+                Destroy(slot.gameObject);
+            slotMap.Remove(key);
+        }
+
+        for (int i = 0; i < desired.Count; i++)
+        {
+            var entry = desired[i];
+            EnsureSlot(entry);
+        }
+
+        ApplySortedOrder();
         ShowCategory(currentCategory);
     }
 
     public void RefreshItem(ShopItem_SObj item)
     {
-        if (InventoryManager.Instance == null || item == null) return;
-        var entry = InventoryManager.Instance.GetEntry(item);
-        if (entry == null) return;
+        var invMgr = InventoryManager.Instance;
+        if (invMgr == null || item == null) return;
 
-        RefreshUI();
+        var entry = invMgr.GetEntry(item);
+        bool visible = entry != null && entry.item != null && (entry.count > 0 || entry.level > 1);
+
+        if (!visible)
+        {
+            if (slotMap.TryGetValue(item, out var oldSlot) && oldSlot != null)
+                Destroy(oldSlot.gameObject);
+            slotMap.Remove(item);
+            ApplySortedOrder();
+            return;
+        }
+
+        EnsureSlot(entry);
+        ApplySortedOrder();
+    }
+
+    private void EnsureSlot(InventoryManager.InventoryEntry entry)
+    {
+        if (entry == null || entry.item == null || inventorySlotPrefab == null) return;
+
+        var parent = GetParentFor(entry.item.category);
+        if (parent == null) return;
+
+        if (!slotMap.TryGetValue(entry.item, out var slot) || slot == null)
+        {
+            var go = Instantiate(inventorySlotPrefab, parent);
+            slot = go.GetComponent<InventorySlot>();
+            slotMap[entry.item] = slot;
+        }
+
+        slot.Setup(entry);
+
+        if (slot.transform.parent != parent)
+            slot.transform.SetParent(parent, false);
+    }
+
+    private void ApplySortedOrder()
+    {
+        if (weaponContent != null) SortParent(weaponContent);
+        if (accessoryContent != null) SortParent(accessoryContent);
+        if (skillContent != null) SortParent(skillContent);
+    }
+
+    private void SortParent(Transform parent)
+    {
+        if (parent == null) return;
+
+        var temp = new List<InventorySlot>(parent.childCount);
+        for (int i = 0; i < parent.childCount; i++)
+        {
+            var s = parent.GetChild(i).GetComponent<InventorySlot>();
+            if (s != null) temp.Add(s);
+        }
+
+        temp.Sort((a, b) =>
+        {
+            var ea = GetEntryFromSlot(a);
+            var eb = GetEntryFromSlot(b);
+            if (ea == null && eb == null) return 0;
+            if (ea == null) return 1;
+            if (eb == null) return -1;
+
+            int r = ((int)ea.item.rarity).CompareTo((int)eb.item.rarity);
+            if (r != 0) return r;
+            return string.Compare(ea.item.itemName, eb.item.itemName, System.StringComparison.Ordinal);
+        });
+
+        for (int i = 0; i < temp.Count; i++)
+            temp[i].transform.SetSiblingIndex(i);
+    }
+
+    private InventoryManager.InventoryEntry GetEntryFromSlot(InventorySlot slot)
+    {
+        foreach (var kv in slotMap)
+            if (kv.Value == slot) return InventoryManager.Instance.GetEntry(kv.Key);
+        return null;
     }
 
     private Transform GetParentFor(ItemCategory category)
@@ -91,12 +183,5 @@ public class InventoryUI : MonoBehaviour
             case ItemCategory.Skill: return skillContent;
             default: return null;
         }
-    }
-
-    private void ClearChildren(Transform t)
-    {
-        if (t == null) return;
-        for (int i = t.childCount - 1; i >= 0; i--)
-            Destroy(t.GetChild(i).gameObject);
     }
 }
