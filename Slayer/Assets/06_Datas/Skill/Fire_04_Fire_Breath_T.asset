@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 65e32a8fbd0b42945adabc9b40f10edf, type: 3}
-  m_Name: Skill 001 buff 000
+  m_Name: Fire_04_Fire_Breath_T
   m_EditorClassIdentifier: 
   itemName: Skill 001 buff 000
   itemDescription: Generated skill.
-  icon: {fileID: 21300000, guid: 186aaa266cee0054e9fe68a36eeca292, type: 3}
+  icon: {fileID: -7269539258892338576, guid: 12489def5bf0a9c4f83a9680098500b6, type: 3}
   category: 2
   baseAttack: 0
   upgradeLevels:

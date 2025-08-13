@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 65e32a8fbd0b42945adabc9b40f10edf, type: 3}
-  m_Name: Skill 001 buff 002
+  m_Name: Light_05_Bouncing_Light_T
   m_EditorClassIdentifier: 
-  itemName: Skill 001 buff 002
+  itemName: Skill 001 buff 003
   itemDescription: Generated skill.
-  icon: {fileID: 21300000, guid: af373a9231a731348af20a3d3eec11f7, type: 3}
+  icon: {fileID: -5894507240615937755, guid: 19cfafde965a19b42be5edacd10f7d9f, type: 3}
   category: 2
   baseAttack: 0
   upgradeLevels:
@@ -63,8 +63,8 @@ MonoBehaviour:
   element: 0
   skillShortDesc: 
   attackPatternText: 
-  requiredHits: 7
-  hpCost: 12
-  resourceCostPerUse: 47
+  requiredHits: 11
+  hpCost: 15
+  resourceCostPerUse: 30
   autoToggleDefault: 1
-  skillAttack: 555
+  skillAttack: 353

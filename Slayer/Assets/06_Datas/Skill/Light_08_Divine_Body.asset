@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 65e32a8fbd0b42945adabc9b40f10edf, type: 3}
-  m_Name: Skill 001 buff 001
+  m_Name: Light_08_Divine_Body
   m_EditorClassIdentifier: 
-  itemName: Skill 001 buff 001
+  itemName: Skill 001 buff 004
   itemDescription: Generated skill.
-  icon: {fileID: 21300000, guid: ff2fbd1ab36aea34a9a71ef3c86dcb05, type: 3}
+  icon: {fileID: -3821765339726116791, guid: 7ee7ce2e841c82746a3fc568cad22d15, type: 3}
   category: 2
   baseAttack: 0
   upgradeLevels:
@@ -63,8 +63,8 @@ MonoBehaviour:
   element: 0
   skillShortDesc: 
   attackPatternText: 
-  requiredHits: 9
-  hpCost: 14
-  resourceCostPerUse: 38
+  requiredHits: 10
+  hpCost: 7
+  resourceCostPerUse: 56
   autoToggleDefault: 1
-  skillAttack: 730
+  skillAttack: 482

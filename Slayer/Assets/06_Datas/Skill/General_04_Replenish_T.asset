@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 65e32a8fbd0b42945adabc9b40f10edf, type: 3}
-  m_Name: Skill 001 buff 004
+  m_Name: General_04_Replenish_T
   m_EditorClassIdentifier: 
-  itemName: Skill 001 buff 004
+  itemName: Skill 001 buff 001
   itemDescription: Generated skill.
-  icon: {fileID: 21300000, guid: 428dc9df459b3cc49b1dc29ba3609da3, type: 3}
+  icon: {fileID: -394069292388333099, guid: a29aa215413cae04fbb070b18663de0e, type: 3}
   category: 2
   baseAttack: 0
   upgradeLevels:
@@ -63,8 +63,8 @@ MonoBehaviour:
   element: 0
   skillShortDesc: 
   attackPatternText: 
-  requiredHits: 10
-  hpCost: 7
-  resourceCostPerUse: 56
+  requiredHits: 9
+  hpCost: 14
+  resourceCostPerUse: 38
   autoToggleDefault: 1
-  skillAttack: 482
+  skillAttack: 730
