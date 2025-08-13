@@ -1,3 +1,4 @@
+using DG.Tweening.Core.Easing;
 using Spine.Unity;
 using System.Collections;
 using UnityEngine;
@@ -19,9 +20,21 @@ public class Monster : MonoBehaviour
     float speed;
     public bool isDead = false;
 
+    [Header("Hit Flash")]
+    [SerializeField] private Color hitFlashColor = new Color(1f, 0.25f, 0.25f, 1f);
+    [SerializeField] private float flashIn = 0.03f;   
+    [SerializeField] private float hold = 0.05f;
+    [SerializeField] private float flashOut = 0.12f;  
+
+    private Color baseColor = Color.white;
+    private Coroutine flashCo;
     void Start()
     {
         skeletonAnimation = GetComponent<SkeletonAnimation>();
+
+        var skel = skeletonAnimation.Skeleton;
+        baseColor = new Color(skel.R, skel.G, skel.B, skel.A);
+
         hpUI.SetActive(false);
         speed = GameManager.Instance.speed;
     }
@@ -67,6 +80,8 @@ public class Monster : MonoBehaviour
         else
             skeletonAnimation.AnimationState.SetAnimation(0, "hit", false);
 
+        StartHitFlash();
+
         hp -= damage;
         hp = Mathf.Clamp((float)hp, 0, (float)maxHp);
         Instantiate(HitPrefab, transform.position + Random.insideUnitSphere * 0.5f, Quaternion.Euler(0, 0, Random.Range(-180, 180.0f)));
@@ -91,6 +106,38 @@ public class Monster : MonoBehaviour
             Die();
         }
     }
+    private void StartHitFlash()
+    {
+        if (flashCo != null) StopCoroutine(flashCo);
+        flashCo = StartCoroutine(HitFlashRoutine());
+    }
+
+    private IEnumerator HitFlashRoutine()
+    {
+        var skel = skeletonAnimation.Skeleton;
+
+        float t = 0f;
+        while (t < flashIn)
+        {
+            t += Time.deltaTime;
+            skel.SetColor(Color.Lerp(baseColor, hitFlashColor, t / flashIn));
+            yield return null;
+        }
+        skel.SetColor(hitFlashColor);
+
+        if (hold > 0f) yield return new WaitForSeconds(hold);
+
+        t = 0f;
+        while (t < flashOut)
+        {
+            t += Time.deltaTime;
+            skel.SetColor(Color.Lerp(hitFlashColor, baseColor, t / flashOut));
+            yield return null;
+        }
+        skel.SetColor(baseColor);
+        flashCo = null;
+    }
+
     private void UpdateHPUI()
     {
         if (!hpUI.activeSelf)

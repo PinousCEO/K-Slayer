@@ -30,7 +30,7 @@ public class Skill02 : SkillBase
 
         center /= targets.Count;
 
-        PlayEffect(center + new Vector3(0, 0.3f, 0));
+        PlayEffect(center + new Vector3(0, 0.5f, 0));
 
         foreach (var monster in targets)
         {
