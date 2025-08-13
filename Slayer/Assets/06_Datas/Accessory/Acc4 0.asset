@@ -1,0 +1,73 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbd4a15f211a8024f9895ca474d9320f, type: 3}
+  m_Name: Acc4 0
+  m_EditorClassIdentifier: 
+  itemName: Acc4 0
+  itemDescription: Generated accessory.
+  icon: {fileID: 4390884701830573478, guid: f50ebc80a1f8f5e428825889e42168c8, type: 3}
+  category: 1
+  baseAttack: 0
+  upgradeLevels:
+  - cost: 4
+    equipAdd:
+    - label: HP%
+      type: 5
+      value: 12
+    ownedAdd:
+    - label: HP%
+      type: 5
+      value: 5
+    - label: ATK%
+      type: 0
+      value: 3
+    - label: DEF%
+      type: 6
+      value: 2
+  - cost: 6
+    equipAdd:
+    - label: HP%
+      type: 5
+      value: 16
+    ownedAdd: []
+  - cost: 8
+    equipAdd:
+    - label: HP%
+      type: 5
+      value: 20
+    ownedAdd: []
+  - cost: 10
+    equipAdd:
+    - label: HP%
+      type: 5
+      value: 24
+    ownedAdd: []
+  - cost: 12
+    equipAdd:
+    - label: HP%
+      type: 5
+      value: 28
+    ownedAdd: []
+  - cost: 14
+    equipAdd:
+    - label: HP%
+      type: 5
+      value: 32
+    ownedAdd: []
+  - cost: 16
+    equipAdd:
+    - label: HP%
+      type: 5
+      value: 36
+    ownedAdd: []
+  rarity: 4
+  defence: 72
